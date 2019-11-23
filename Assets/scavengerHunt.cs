@@ -75,10 +75,6 @@ public class scavengerHunt : MonoBehaviour
         }
         for (int i = 0; i < 16; i++)
             symic[i] = rnd.Range(0, 2);
-        Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeindex);
-        Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posnames[position]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The keysquare is at {1}.", moduleId, posnames[keysquare]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The fake keysquares are at {1} and {2}.", moduleId, posnames[decoylocations[0]], posnames[decoylocations[1]]);
         for (int i = 0; i < 2; i++)
         {
             reltiles[i] = numbers[rnd.Range(0, numbers.Count())];
@@ -91,6 +87,12 @@ public class scavengerHunt : MonoBehaviour
             numbers.Remove(decoytiles[i]);
             tiles[decoytiles[i]].material = colors[(i == 0 || i == 1) ? 1 : 2]; // See above.
         }
+        Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeindex);
+        Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posnames[position]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The relevant colored squares are at {1} and {2}.", moduleId, posnames[reltiles[0]], posnames[reltiles[1]]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The decoy colored squares are at {1}, {2}, {3}, and {4}.", moduleId, posnames[decoytiles[0]], posnames[decoytiles[1]], posnames[decoytiles[2]], posnames[decoytiles[3]]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The keysquare is at {1}.", moduleId, posnames[keysquare]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The fake keysquares are at {1} and {2}.", moduleId, posnames[decoylocations[0]], posnames[decoylocations[1]]);
         tileState();
     }
 
@@ -98,6 +100,7 @@ public class scavengerHunt : MonoBehaviour
     {
         for (int i = 0; i < 16; i++)
             tiles[i].material = neutral;
+        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square is at {1}.", moduleId, posnames[solutionsquare]);
         tileState();
     }
 
@@ -158,7 +161,6 @@ public class scavengerHunt : MonoBehaviour
     {
         if (moduleSolved)
             return;
-
         submit.AddInteractionPunch(.5f);
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, submit.transform);
         if (stage == 0)
