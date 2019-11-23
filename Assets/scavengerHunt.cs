@@ -62,7 +62,7 @@ public class scavengerHunt : MonoBehaviour
 		void Start ()
 		{
       var numbers = Enumerable.Range(0,16).ToList();
-      mazeindex = rnd.Range(0,6); // Temporary; Method of calculating maze TBD.
+      mazeindex = (bomb.GetSerialNumber()[5] - '0') % 7; // Last digit of SN mod 6
       position = rnd.Range(0,16);
       keysquare = rnd.Range(0,16); // The position that must be submitted in stage 1.
       solutionsquare = rnd.Range(0,16); // The position that must be submitted in stage 2.
@@ -73,7 +73,7 @@ public class scavengerHunt : MonoBehaviour
       }
       for (int i = 0; i < 16; i++)
         symic[i] = rnd.Range(0,2);
-      Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeindex + 1);
+      Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeindex);
       Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posnames[position]);
       Debug.LogFormat("[Scavenger Hunt #{0}] The keysquare is at {1}.", moduleId, posnames[keysquare]);
       Debug.LogFormat("[Scavenger Hunt #{0}] The fake keysquares are at {1} and {2}.", moduleId, posnames[decoylocations[0]], posnames[decoylocations[1]]);
