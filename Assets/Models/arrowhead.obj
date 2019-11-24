@@ -1,0 +1,9 @@
+o arrowhead
+v 0 0 .2
+v 0 0 .1
+v -.5 0 0
+v .5 0 0
+vn 0 -1 0
+g arrowhead
+f 1 2 3
+f 1 4 2
