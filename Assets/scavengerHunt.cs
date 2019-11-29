@@ -36,6 +36,7 @@ public class scavengerHunt : MonoBehaviour
     public Transform animationPivot;
     public Transform statusLight;
     private static readonly string[] posnames = new string[16] { "A1", "B1", "C1", "D1", "A2", "B2", "C2", "D2", "A3", "B3", "C3", "D3", "A4", "B4", "C4", "D4" };
+    private static readonly string[] colornames = new string[3] { "red", "green", "blue" };
     private static readonly string[][] mazes = new string[6][] { new string[16] { "dr", "lr", "lr", "l", "ud", "dr", "lr", "l", "ur", "uld", "dr", "l", "r", "ulr", "ulr", "l" },
                                                 new string[16] { "dr", "dl", "d", "d", "u", "ur", "uld", "ud", "dr", "lrd", "ul", "ud", "u", "ur", "lr", "ul" },
                                                 new string[16] { "r", "ldr", "ldr", "l", "rd", "ul", "ur", "dl", "ud", "r", "lr", "uld", "u", "r", "lr", "ul"  },
@@ -44,6 +45,7 @@ public class scavengerHunt : MonoBehaviour
                                                 new string[16] { "dr", "lr", "ld", "d", "ur", "dl", "ur", "ul", "dr", "ulr", "drl", "ld", "u", "r", "ul", "u"  } };
 
     private int mazeindex;
+    private int colorindex;
     private int position;
     private int stage;
     private int keysquare;
@@ -64,6 +66,14 @@ public class scavengerHunt : MonoBehaviour
     void Start()
     {
         var numbers = Enumerable.Range(0, 16).ToList();
+        var decoycolornumbers = Enumerable.Range(0,3).ToList();
+        if (bomb.GetBatteryCount() % 2 == 0) // Even number of batteries
+          colorindex = 0;
+        else if (bomb.GetSerialNumberLetters().Any(x => x == 'A' || x == 'E' || x == 'I' || x == 'O' || x == 'U')) // SN contains a vowel
+          colorindex = 1;
+        else
+          colorindex = 2;
+        decoycolornumbers.Remove(colorindex);
         mazeindex = (bomb.GetSerialNumber()[5] - '0') % 6; // Last digit of SN mod 6
         position = rnd.Range(0, 16);
         keysquare = rnd.Range(0, 16); // The position that must be submitted in stage 1.
@@ -79,16 +89,17 @@ public class scavengerHunt : MonoBehaviour
         {
             reltiles[i] = numbers[rnd.Range(0, numbers.Count())];
             numbers.Remove(reltiles[i]);
-            tiles[reltiles[i]].material = colors[0]; // Currently, relevant tiles are always red. Method of calculating relevant color TBD.
+            tiles[reltiles[i]].material = colors[colorindex];
         }
         for (int i = 0; i < 4; i++)
         {
             decoytiles[i] = numbers[rnd.Range(0, numbers.Count())];
             numbers.Remove(decoytiles[i]);
-            tiles[decoytiles[i]].material = colors[(i == 0 || i == 1) ? 1 : 2]; // See above.
+            tiles[decoytiles[i]].material = colors[(i == 0 || i == 1) ? decoycolornumbers[0] : decoycolornumbers[1]];
         }
         Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeindex);
         Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posnames[position]);
+        Debug.LogFormat("[Scanvenger Hunt #{0}] The relevant color is {1}.", moduleId, colornames[colorindex]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The relevant colored squares are at {1} and {2}.", moduleId, posnames[reltiles[0]], posnames[reltiles[1]]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The decoy colored squares are at {1}, {2}, {3}, and {4}.", moduleId, posnames[decoytiles[0]], posnames[decoytiles[1]], posnames[decoytiles[2]], posnames[decoytiles[3]]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The keysquare is at {1}.", moduleId, posnames[keysquare]);
@@ -140,9 +151,9 @@ public class scavengerHunt : MonoBehaviour
 
     void buttonPress(KMSelectable button)
     {
+        var ix = Array.IndexOf(buttons, button);
         button.AddInteractionPunch(.5f);
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, button.transform);
-        var ix = Array.IndexOf(buttons, button);
         var directions = new int[] { -4, 1, 4, -1 };
         var markers = new char[] { 'u', 'r', 'd', 'l' };
         if (!mazes[mazeindex][position].Contains(markers[ix]))
@@ -187,7 +198,10 @@ public class scavengerHunt : MonoBehaviour
             Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Module solved.", moduleId, posnames[position]);
             moduleSolved = true;
             for (int i = 0; i < 4; i++)
-                buttons[i].gameObject.SetActive(false);
+              buttons[i].gameObject.SetActive(false);
+            submit.gameObject.SetActive(false);
+            for (int i = 0; i < 16; i++)
+              tilesymbols[i].gameObject.SetActive(false);
             StartCoroutine(showStatusLight(tiles[solutionsquare].transform.localPosition));
             StartCoroutine(openFlap());
         }

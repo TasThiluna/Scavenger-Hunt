@@ -14,7 +14,14 @@ MonoBehaviour:
   id: scavengerHunt
   title: Scavenger Hunt
   author: TasThing
-  description: 
+  description: 'Burying your problems won''t solve them.
+
+
+    Module idea and implementation by TasThing.
+
+    Thanks to Timwi for the sole animation.
+
+    Symbols are from Cryptic Cycle, by SpeakingEvil.'
   version: 
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: 87d9701150c956244bca9f01bc2d9fe4, type: 3}
