@@ -69,7 +69,7 @@ public class scavengerHunt : MonoBehaviour
         var decoycolornumbers = Enumerable.Range(0,3).ToList();
         if (bomb.GetBatteryCount() % 2 == 0) // Even number of batteries
           colorindex = 0;
-        else if (bomb.GetSerialNumberLetters().Any(x => x == 'A' || x == 'E' || x == 'I' || x == 'O' || x == 'U')) // SN contains a vowel
+        else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x))) // SN contains a vowel
           colorindex = 1;
         else
           colorindex = 2;
