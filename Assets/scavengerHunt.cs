@@ -102,8 +102,8 @@ public class scavengerHunt : MonoBehaviour
         Debug.LogFormat("[Scanvenger Hunt #{0}] The relevant color is {1}.", moduleId, colornames[colorindex]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The relevant colored squares are at {1} and {2}.", moduleId, posnames[reltiles[0]], posnames[reltiles[1]]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The decoy colored squares are at {1}, {2}, {3}, and {4}.", moduleId, posnames[decoytiles[0]], posnames[decoytiles[1]], posnames[decoytiles[2]], posnames[decoytiles[3]]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The keysquare is at {1}.", moduleId, posnames[keysquare]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The fake keysquares are at {1} and {2}.", moduleId, posnames[decoylocations[0]], posnames[decoylocations[1]]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 1 is at {1}.", moduleId, posnames[keysquare]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The fake solution squares are at {1} and {2}.", moduleId, posnames[decoylocations[0]], posnames[decoylocations[1]]);
         tileState();
     }
 
@@ -111,7 +111,7 @@ public class scavengerHunt : MonoBehaviour
     {
         for (int i = 0; i < 16; i++)
             tiles[i].material = neutral;
-        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square is at {1}.", moduleId, posnames[solutionsquare]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 2 is at {1}.", moduleId, posnames[solutionsquare]);
         tileState();
     }
 
@@ -179,7 +179,7 @@ public class scavengerHunt : MonoBehaviour
             if (position != keysquare)
             {
                 GetComponent<KMBombModule>().HandleStrike();
-                Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the keysquare. Strike!", moduleId, posnames[position]);
+                Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 1. Strike!", moduleId, posnames[position]);
             }
             else
             {
@@ -191,7 +191,7 @@ public class scavengerHunt : MonoBehaviour
         else if (position != solutionsquare)
         {
             GetComponent<KMBombModule>().HandleStrike();
-            Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square. Strike!", moduleId, posnames[position]);
+            Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 2. Strike!", moduleId, posnames[position]);
         }
         else
         {
