@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
 using rnd = UnityEngine.Random;
@@ -254,5 +255,94 @@ public class scavengerHunt : MonoBehaviour
             elapsed += Time.deltaTime;
         }
         animationPivot.localEulerAngles = new Vector3(0, 0, 90);
+    }
+
+    //twitch plays
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} move u/d/l/r [Moves the specified direction in the maze] | !{0} submit [Submits the current position] | !{0} reset [Resets the module back to stage 1] | Moves can be chained, for example '!{0} move uuddlrl'";
+    #pragma warning restore 414
+
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        if (Regex.IsMatch(command, @"^\s*reset\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            if(stage == 0)
+            {
+                yield return "sendtochaterror Module cannot be reset to stage 1 when it is already on stage 1!";
+            }
+            else
+            {
+                stage = 0;
+                var decoycolornumbers = Enumerable.Range(0, 3).ToList();
+                if (bomb.GetBatteryCount() % 2 == 0) // Even number of batteries
+                    colorindex = 0;
+                else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x))) // SN contains a vowel
+                    colorindex = 1;
+                else
+                    colorindex = 2;
+                decoycolornumbers.Remove(colorindex);
+                for (int i = 0; i < 2; i++)
+                {
+                    tiles[reltiles[i]].material = colors[colorindex];
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    tiles[decoytiles[i]].material = colors[(i == 0 || i == 1) ? decoycolornumbers[0] : decoycolornumbers[1]];
+                }
+                tileState();
+                Debug.LogFormat("[Scavenger Hunt #{0}] Module reset back to stage 1! (TP)", moduleId);
+            }
+            yield break;
+        }
+        if (Regex.IsMatch(command, @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            submit.OnInteract();
+            yield break;
+        }
+        string[] parameters = command.Split(' ');
+        if (Regex.IsMatch(parameters[0], @"^\s*move\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            if(parameters.Length >= 2)
+            {
+                string checks = "";
+                for (int j = 1; j < parameters.Length; j++)
+                {
+                    checks += parameters[j];
+                }
+                var buttonsToPress = new List<KMSelectable>();
+                for (int i = 0; i < checks.Length; i++)
+                {
+                    if (checks.ElementAt(i).Equals('u') || checks.ElementAt(i).Equals('U'))
+                        buttonsToPress.Add(buttons[0]);
+                    else if (checks.ElementAt(i).Equals('d') || checks.ElementAt(i).Equals('D'))
+                        buttonsToPress.Add(buttons[2]);
+                    else if (checks.ElementAt(i).Equals('l') || checks.ElementAt(i).Equals('L'))
+                        buttonsToPress.Add(buttons[3]);
+                    else if (checks.ElementAt(i).Equals('r') || checks.ElementAt(i).Equals('R'))
+                        buttonsToPress.Add(buttons[1]);
+                    else
+                    {
+                        yield return "sendtochaterror Invalid movement character detected: '" + checks.ElementAt(i) + "'";
+                        yield break;
+                    }
+                }
+                yield return null;
+                var ix = 0;
+                var directions = new int[] { -4, 1, 4, -1 };
+                var markers = new char[] { 'u', 'r', 'd', 'l' };
+                for (int i = 0; i < buttonsToPress.Count; i++)
+                {
+                    ix = Array.IndexOf(buttons, buttonsToPress[i]);
+                    if (!mazes[mazeindex][position].Contains(markers[ix]))
+                    {
+                        yield return "strike";
+                    }
+                    buttonsToPress[i].OnInteract();
+                    yield return new WaitForSeconds(0.15f);
+                }
+            }
+        }
     }
 }
