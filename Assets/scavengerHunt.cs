@@ -66,14 +66,15 @@ public class scavengerHunt : MonoBehaviour
 
     void Start()
     {
-        var numbers = Enumerable.Range(0, 16).ToList();
-        var decoycolornumbers = Enumerable.Range(0,3).ToList();
+		statusLight.gameObject.SetActive(false);
+		var numbers = Enumerable.Range(0, 16).ToList();
+        var decoycolornumbers = Enumerable.Range(0, 3).ToList();
         if (bomb.GetBatteryCount() % 2 == 0) // Even number of batteries
-          colorindex = 0;
+            colorindex = 0;
         else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x))) // SN contains a vowel
-          colorindex = 1;
+            colorindex = 1;
         else
-          colorindex = 2;
+            colorindex = 2;
         decoycolornumbers.Remove(colorindex);
         mazeindex = (bomb.GetSerialNumber()[5] - '0') % 6; // Last digit of SN mod 6
         position = rnd.Range(0, 16);
@@ -199,10 +200,10 @@ public class scavengerHunt : MonoBehaviour
             Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Module solved.", moduleId, posnames[position]);
             moduleSolved = true;
             for (int i = 0; i < 4; i++)
-              buttons[i].gameObject.SetActive(false);
+                buttons[i].gameObject.SetActive(false);
             submit.gameObject.SetActive(false);
             for (int i = 0; i < 16; i++)
-              tilesymbols[i].gameObject.SetActive(false);
+                tilesymbols[i].gameObject.SetActive(false);
             StartCoroutine(showStatusLight(tiles[solutionsquare].transform.localPosition));
             StartCoroutine(openFlap());
         }
@@ -222,6 +223,7 @@ public class scavengerHunt : MonoBehaviour
         var x = solutionsquare % 4;
         var y = solutionsquare / 4;
         statusLight.localPosition = new Vector3(tilePosition.x, -0.045f, tilePosition.z);
+		statusLight.gameObject.SetActive(true);
 
         var duration = 1.6f;
         var elapsed = 0f;
@@ -258,16 +260,16 @@ public class scavengerHunt : MonoBehaviour
     }
 
     //twitch plays
-    #pragma warning disable 414
+#pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} move u/d/l/r [Moves the specified direction in the maze] | !{0} submit [Submits the current position] | !{0} reset [Resets the module back to stage 1] | Moves can be chained, for example '!{0} move uuddlrl'";
-    #pragma warning restore 414
+#pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string command)
     {
         if (Regex.IsMatch(command, @"^\s*reset\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
             yield return null;
-            if(stage == 0)
+            if (stage == 0)
             {
                 yield return "sendtochaterror Module cannot be reset to stage 1 when it is already on stage 1!";
             }
@@ -304,7 +306,7 @@ public class scavengerHunt : MonoBehaviour
         string[] parameters = command.Split(' ');
         if (Regex.IsMatch(parameters[0], @"^\s*move\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
-            if(parameters.Length >= 2)
+            if (parameters.Length >= 2)
             {
                 string checks = "";
                 for (int j = 1; j < parameters.Length; j++)
