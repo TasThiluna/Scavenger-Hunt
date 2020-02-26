@@ -4377,8 +4377,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc4e636bebb6f344bed34e243bb817b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Audio: {fileID: 114362555509535318}
+  audio: {fileID: 114362555509535318}
   bomb: {fileID: 114212602564178874}
+  module: {fileID: 114221075226099596}
   buttons:
   - {fileID: 114201323844226718}
   - {fileID: 114677888277354460}

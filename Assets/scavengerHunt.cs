@@ -1,4 +1,5 @@
 using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,9 @@ using rnd = UnityEngine.Random;
 
 public class scavengerHunt : MonoBehaviour
 {
-    public KMAudio Audio;
+    public new KMAudio audio;
     public KMBombInfo bomb;
+    public KMBombModule module;
 
     static int moduleIdCounter = 1;
     int moduleId;
@@ -38,12 +40,15 @@ public class scavengerHunt : MonoBehaviour
     public Transform statusLight;
     private static readonly string[] posnames = new string[16] { "A1", "B1", "C1", "D1", "A2", "B2", "C2", "D2", "A3", "B3", "C3", "D3", "A4", "B4", "C4", "D4" };
     private static readonly string[] colornames = new string[3] { "red", "green", "blue" };
-    private static readonly string[][] mazes = new string[6][] { new string[16] { "dr", "lr", "lr", "l", "ud", "dr", "lr", "l", "ur", "uld", "dr", "l", "r", "ulr", "ulr", "l" },
-                                                new string[16] { "dr", "dl", "d", "d", "u", "ur", "uld", "ud", "dr", "lrd", "ul", "ud", "u", "ur", "lr", "ul" },
-                                                new string[16] { "r", "ldr", "ldr", "l", "rd", "ul", "ur", "dl", "ud", "r", "lr", "uld", "u", "r", "lr", "ul"  },
-                                                new string[16] { "dr", "lr", "ldr", "l", "ur", "ld", "urd", "ld", "d", "ud", "ud", "ud", "ur", "ul", "u", "u"  },
-                                                new string[16] { "dr", "dl", "dr", "l", "ud", "u", "ur", "dl", "ur", "dl", "r", "uld", "r", "ulr", "lr", "ul"  },
-                                                new string[16] { "dr", "lr", "ld", "d", "ur", "dl", "ur", "ul", "dr", "ulr", "drl", "ld", "u", "r", "ul", "u"  } };
+    private static readonly string[][] mazes = new string[6][]
+    {
+        new string[16] { "dr", "lr", "lr", "l", "ud", "dr", "lr", "l", "ur", "uld", "dr", "l", "r", "ulr", "ulr", "l" },
+        new string[16] { "dr", "dl", "d", "d", "u", "ur", "uld", "ud", "dr", "lrd", "ul", "ud", "u", "ur", "lr", "ul" },
+        new string[16] { "r", "ldr", "ldr", "l", "rd", "ul", "ur", "dl", "ud", "r", "lr", "uld", "u", "r", "lr", "ul"  },
+        new string[16] { "dr", "lr", "ldr", "l", "ur", "ld", "urd", "ld", "d", "ud", "ud", "ud", "ur", "ul", "u", "u"  },
+        new string[16] { "dr", "dl", "dr", "l", "ud", "u", "ur", "dl", "ur", "dl", "r", "uld", "r", "ulr", "lr", "ul"  },
+        new string[16] { "dr", "lr", "ld", "d", "ur", "dl", "ur", "ul", "dr", "ulr", "drl", "ld", "u", "r", "ul", "u"  }
+     };
 
     private int mazeindex;
     private int colorindex;
@@ -66,20 +71,20 @@ public class scavengerHunt : MonoBehaviour
 
     void Start()
     {
-		statusLight.gameObject.SetActive(false);
-		var numbers = Enumerable.Range(0, 16).ToList();
+        statusLight.gameObject.SetActive(false);
+        var numbers = Enumerable.Range(0, 16).ToList();
         var decoycolornumbers = Enumerable.Range(0, 3).ToList();
-        if (bomb.GetBatteryCount() % 2 == 0) // Even number of batteries
+        if (bomb.GetBatteryCount() % 2 == 0)
             colorindex = 0;
-        else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x))) // SN contains a vowel
+        else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x)))
             colorindex = 1;
         else
             colorindex = 2;
         decoycolornumbers.Remove(colorindex);
-        mazeindex = (bomb.GetSerialNumber()[5] - '0') % 6; // Last digit of SN mod 6
+        mazeindex = (bomb.GetSerialNumber()[5] - '0') % 6;
         position = rnd.Range(0, 16);
-        keysquare = rnd.Range(0, 16); // The position that must be submitted in stage 1.
-        solutionsquare = rnd.Range(0, 16); // The position that must be submitted in stage 2.
+        keysquare = rnd.Range(0, 16);
+        solutionsquare = rnd.Range(0, 16);
         for (int i = 0; i < 2; i++)
         {
             decoylocations[i] = numbers[rnd.Range(0, numbers.Count())];
@@ -155,13 +160,13 @@ public class scavengerHunt : MonoBehaviour
     {
         var ix = Array.IndexOf(buttons, button);
         button.AddInteractionPunch(.5f);
-        Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, button.transform);
+        audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, button.transform);
         var directions = new int[] { -4, 1, 4, -1 };
         var markers = new char[] { 'u', 'r', 'd', 'l' };
         if (!mazes[mazeindex][position].Contains(markers[ix]))
         {
             Debug.LogFormat("[Scavenger Hunt #{0}] You ran into a wall. Strike!.", moduleId);
-            GetComponent<KMBombModule>().HandleStrike();
+            module.HandleStrike();
         }
         else
         {
@@ -175,12 +180,12 @@ public class scavengerHunt : MonoBehaviour
         if (moduleSolved)
             return;
         submit.AddInteractionPunch(.5f);
-        Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, submit.transform);
+        audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, submit.transform);
         if (stage == 0)
         {
             if (position != keysquare)
             {
-                GetComponent<KMBombModule>().HandleStrike();
+                module.HandleStrike();
                 Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 1. Strike!", moduleId, posnames[position]);
             }
             else
@@ -192,7 +197,7 @@ public class scavengerHunt : MonoBehaviour
         }
         else if (position != solutionsquare)
         {
-            GetComponent<KMBombModule>().HandleStrike();
+            module.HandleStrike();
             Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 2. Strike!", moduleId, posnames[position]);
         }
         else
@@ -223,7 +228,7 @@ public class scavengerHunt : MonoBehaviour
         var x = solutionsquare % 4;
         var y = solutionsquare / 4;
         statusLight.localPosition = new Vector3(tilePosition.x, -0.045f, tilePosition.z);
-		statusLight.gameObject.SetActive(true);
+        statusLight.gameObject.SetActive(true);
 
         var duration = 1.6f;
         var elapsed = 0f;
@@ -236,8 +241,8 @@ public class scavengerHunt : MonoBehaviour
         }
         statusLight.localPosition = new Vector3(tilePosition.x, 0, tilePosition.z);
 
-        GetComponent<KMBombModule>().HandlePass();
-        Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
+        module.HandlePass();
+        audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
     }
 
     private IEnumerator openFlap()
@@ -259,7 +264,7 @@ public class scavengerHunt : MonoBehaviour
         animationPivot.localEulerAngles = new Vector3(0, 0, 90);
     }
 
-    //twitch plays
+    // Twitch Plays
 #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} move u/d/l/r [Moves the specified direction in the maze] | !{0} submit [Submits the current position] | !{0} reset [Resets the module back to stage 1] | Moves can be chained, for example '!{0} move uuddlrl'";
 #pragma warning restore 414
@@ -277,9 +282,9 @@ public class scavengerHunt : MonoBehaviour
             {
                 stage = 0;
                 var decoycolornumbers = Enumerable.Range(0, 3).ToList();
-                if (bomb.GetBatteryCount() % 2 == 0) // Even number of batteries
+                if (bomb.GetBatteryCount() % 2 == 0)
                     colorindex = 0;
-                else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x))) // SN contains a vowel
+                else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x)))
                     colorindex = 1;
                 else
                     colorindex = 2;
