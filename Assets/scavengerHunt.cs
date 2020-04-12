@@ -1,5 +1,4 @@
 using System;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +37,9 @@ public class scavengerHunt : MonoBehaviour
     public Texture oddrow;
     public Transform animationPivot;
     public Transform statusLight;
-    private static readonly string[] posnames = new string[16] { "A1", "B1", "C1", "D1", "A2", "B2", "C2", "D2", "A3", "B3", "C3", "D3", "A4", "B4", "C4", "D4" };
-    private static readonly string[] colornames = new string[3] { "red", "green", "blue" };
+
+    private static readonly string[] posNames = new string[16] { "A1", "B1", "C1", "D1", "A2", "B2", "C2", "D2", "A3", "B3", "C3", "D3", "A4", "B4", "C4", "D4" };
+    private static readonly string[] colorNames = new string[3] { "red", "green", "blue" };
     private static readonly string[][] mazes = new string[6][]
     {
         new string[16] { "dr", "lr", "lr", "l", "ud", "dr", "lr", "l", "ur", "uld", "dr", "l", "r", "ulr", "ulr", "l" },
@@ -50,22 +50,22 @@ public class scavengerHunt : MonoBehaviour
         new string[16] { "dr", "lr", "ld", "d", "ur", "dl", "ur", "ul", "dr", "ulr", "drl", "ld", "u", "r", "ul", "u"  }
      };
 
-    private int mazeindex;
-    private int colorindex;
+    private int mazeIndex;
+    private int colorIndex;
     private int position;
     private int stage;
-    private int keysquare;
-    private int solutionsquare;
+    private int keySquare;
+    private int solutionSquare;
     private int[] symic = new int[16];
-    private int[] reltiles = new int[2];
-    private int[] decoytiles = new int[4];
-    private int[] decoylocations = new int[2];
+    private int[] relTiles = new int[2];
+    private int[] decoyTiles = new int[4];
+    private int[] decoyLocations = new int[2];
 
     void Awake()
     {
         moduleId = moduleIdCounter++;
         foreach (KMSelectable button in buttons)
-            button.OnInteract += delegate () { buttonPress(button); return false; };
+            button.OnInteract += delegate () { ButtonPress(button); return false; };
         submit.OnInteract += delegate () { PressSubmit(); return false; };
     }
 
@@ -73,97 +73,96 @@ public class scavengerHunt : MonoBehaviour
     {
         statusLight.gameObject.SetActive(false);
         var numbers = Enumerable.Range(0, 16).ToList();
-        var decoycolornumbers = Enumerable.Range(0, 3).ToList();
+        var decoyColorNumbers = Enumerable.Range(0, 3).ToList();
         if (bomb.GetBatteryCount() % 2 == 0)
-            colorindex = 0;
+            colorIndex = 0;
         else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x)))
-            colorindex = 1;
+            colorIndex = 1;
         else
-            colorindex = 2;
-        decoycolornumbers.Remove(colorindex);
-        mazeindex = (bomb.GetSerialNumber()[5] - '0') % 6;
+            colorIndex = 2;
+        decoyColorNumbers.Remove(colorIndex);
+        mazeIndex = (bomb.GetSerialNumber()[5] - '0') % 6;
         position = rnd.Range(0, 16);
-        keysquare = rnd.Range(0, 16);
-        solutionsquare = rnd.Range(0, 16);
+        keySquare = rnd.Range(0, 16);
+        solutionSquare = rnd.Range(0, 16);
         for (int i = 0; i < 2; i++)
         {
-            decoylocations[i] = numbers[rnd.Range(0, numbers.Count())];
-            numbers.Remove(decoylocations[i]);
+            decoyLocations[i] = numbers[rnd.Range(0, numbers.Count())];
+            numbers.Remove(decoyLocations[i]);
         }
         for (int i = 0; i < 16; i++)
             symic[i] = rnd.Range(0, 2);
         for (int i = 0; i < 2; i++)
         {
-            reltiles[i] = numbers[rnd.Range(0, numbers.Count())];
-            numbers.Remove(reltiles[i]);
-            tiles[reltiles[i]].material = colors[colorindex];
+            relTiles[i] = numbers[rnd.Range(0, numbers.Count())];
+            numbers.Remove(relTiles[i]);
+            tiles[relTiles[i]].material = colors[colorIndex];
         }
         for (int i = 0; i < 4; i++)
         {
-            decoytiles[i] = numbers[rnd.Range(0, numbers.Count())];
-            numbers.Remove(decoytiles[i]);
-            tiles[decoytiles[i]].material = colors[(i == 0 || i == 1) ? decoycolornumbers[0] : decoycolornumbers[1]];
+            decoyTiles[i] = numbers[rnd.Range(0, numbers.Count())];
+            numbers.Remove(decoyTiles[i]);
+            tiles[decoyTiles[i]].material = colors[(i == 0 || i == 1) ? decoyColorNumbers[0] : decoyColorNumbers[1]];
         }
-        Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeindex);
-        Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posnames[position]);
-        Debug.LogFormat("[Scanvenger Hunt #{0}] The relevant color is {1}.", moduleId, colornames[colorindex]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The relevant colored squares are at {1} and {2}.", moduleId, posnames[reltiles[0]], posnames[reltiles[1]]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The decoy colored squares are at {1}, {2}, {3}, and {4}.", moduleId, posnames[decoytiles[0]], posnames[decoytiles[1]], posnames[decoytiles[2]], posnames[decoytiles[3]]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 1 is at {1}.", moduleId, posnames[keysquare]);
-        Debug.LogFormat("[Scavenger Hunt #{0}] The fake solution squares are at {1} and {2}.", moduleId, posnames[decoylocations[0]], posnames[decoylocations[1]]);
-        tileState();
+        Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeIndex);
+        Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posNames[position]);
+        Debug.LogFormat("[Scanvenger Hunt #{0}] The relevant color is {1}.", moduleId, colorNames[colorIndex]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The relevant colored squares are at {1} and {2}.", moduleId, posNames[relTiles[0]], posNames[relTiles[1]]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The decoy colored squares are at {1}, {2}, {3}, and {4}.", moduleId, posNames[decoyTiles[0]], posNames[decoyTiles[1]], posNames[decoyTiles[2]], posNames[decoyTiles[3]]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 1 is at {1}.", moduleId, posNames[keySquare]);
+        TileState();
     }
 
-    void stageTwo()
+    void StageTwo()
     {
         for (int i = 0; i < 16; i++)
             tiles[i].material = neutral;
-        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 2 is at {1}.", moduleId, posnames[solutionsquare]);
-        tileState();
+        Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 2 is at {1}.", moduleId, posNames[solutionSquare]);
+        TileState();
     }
 
-    void tileState()
+    void TileState()
     {
-        var allpositions = Enumerable.Range(0, 16).ToList();
-        var unused = allpositions.Where(x => x != position).ToArray();
+        var allPositions = Enumerable.Range(0, 16).ToList();
+        var unused = allPositions.Where(x => x != position).ToArray();
         for (int i = 0; i < unused.Count(); i++)
             tilesymbols[unused[i]].material.mainTexture = none;
         if (stage == 0)
         {
-            if (!reltiles.Contains(position) && !decoytiles.Contains(position))
+            if (!relTiles.Contains(position) && !decoyTiles.Contains(position))
                 tilesymbols[position].material.mainTexture = noclue;
-            else if (position == reltiles[0])
-                tilesymbols[position].material.mainTexture = columnsymbols[keysquare % 4];
-            else if (position == reltiles[1])
-                tilesymbols[position].material.mainTexture = rowsymbols[keysquare / 4];
-            else if (position == decoytiles[0] || position == decoytiles[2])
-                tilesymbols[position].material.mainTexture = columnsymbols[position == decoytiles[0] ? decoytiles[0] % 4 : decoytiles[2] % 4];
+            else if (position == relTiles[0])
+                tilesymbols[position].material.mainTexture = columnsymbols[keySquare % 4];
+            else if (position == relTiles[1])
+                tilesymbols[position].material.mainTexture = rowsymbols[keySquare / 4];
+            else if (position == decoyTiles[0] || position == decoyTiles[2])
+                tilesymbols[position].material.mainTexture = columnsymbols[position == decoyTiles[0] ? decoyTiles[0] % 4 : decoyTiles[2] % 4];
             else
-                tilesymbols[position].material.mainTexture = rowsymbols[position == decoytiles[1] ? decoytiles[1] / 4 : decoytiles[3] / 4];
+                tilesymbols[position].material.mainTexture = rowsymbols[position == decoyTiles[1] ? decoyTiles[1] / 4 : decoyTiles[3] / 4];
         }
         else
         {
-            if (!decoytiles.Contains(position))
+            if (!decoyTiles.Contains(position))
                 tilesymbols[position].material.mainTexture = noclue;
-            else if (position == decoytiles[0])
-                tilesymbols[position].material.mainTexture = ((solutionsquare / 4 == 0 || solutionsquare / 4 == 1) ? tophalf : bottomhalf);
-            else if (position == decoytiles[1])
-                tilesymbols[position].material.mainTexture = ((solutionsquare % 4 == 0 || solutionsquare % 4 == 1) ? lefthalf : righthalf);
-            else if (position == decoytiles[2])
-                tilesymbols[position].material.mainTexture = ((solutionsquare / 4 == 0 || solutionsquare / 4 == 2) ? oddrow : evenrow);
+            else if (position == decoyTiles[0])
+                tilesymbols[position].material.mainTexture = ((solutionSquare / 4 == 0 || solutionSquare / 4 == 1) ? tophalf : bottomhalf);
+            else if (position == decoyTiles[1])
+                tilesymbols[position].material.mainTexture = ((solutionSquare % 4 == 0 || solutionSquare % 4 == 1) ? lefthalf : righthalf);
+            else if (position == decoyTiles[2])
+                tilesymbols[position].material.mainTexture = ((solutionSquare / 4 == 0 || solutionSquare / 4 == 2) ? oddrow : evenrow);
             else
-                tilesymbols[position].material.mainTexture = ((solutionsquare % 4 == 0 || solutionsquare % 4 == 2) ? oddcol : evencol);
+                tilesymbols[position].material.mainTexture = ((solutionSquare % 4 == 0 || solutionSquare % 4 == 2) ? oddcol : evencol);
         }
     }
 
-    void buttonPress(KMSelectable button)
+    void ButtonPress(KMSelectable button)
     {
         var ix = Array.IndexOf(buttons, button);
         button.AddInteractionPunch(.5f);
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, button.transform);
         var directions = new int[] { -4, 1, 4, -1 };
         var markers = new char[] { 'u', 'r', 'd', 'l' };
-        if (!mazes[mazeindex][position].Contains(markers[ix]))
+        if (!mazes[mazeIndex][position].Contains(markers[ix]))
         {
             Debug.LogFormat("[Scavenger Hunt #{0}] You ran into a wall. Strike!.", moduleId);
             module.HandleStrike();
@@ -171,7 +170,7 @@ public class scavengerHunt : MonoBehaviour
         else
         {
             position += directions[ix];
-            tileState();
+            TileState();
         }
     }
 
@@ -183,38 +182,38 @@ public class scavengerHunt : MonoBehaviour
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, submit.transform);
         if (stage == 0)
         {
-            if (position != keysquare)
+            if (position != keySquare)
             {
                 module.HandleStrike();
-                Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 1. Strike!", moduleId, posnames[position]);
+                Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 1. Strike!", moduleId, posNames[position]);
             }
             else
             {
-                Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Progressing to the next stage.", moduleId, posnames[position]);
+                Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Progressing to the next stage.", moduleId, posNames[position]);
                 stage++;
-                stageTwo();
+                StageTwo();
             }
         }
-        else if (position != solutionsquare)
+        else if (position != solutionSquare)
         {
             module.HandleStrike();
-            Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 2. Strike!", moduleId, posnames[position]);
+            Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is not the solution square for stage 2. Strike!", moduleId, posNames[position]);
         }
         else
         {
-            Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Module solved.", moduleId, posnames[position]);
+            Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Module solved.", moduleId, posNames[position]);
             moduleSolved = true;
             for (int i = 0; i < 4; i++)
                 buttons[i].gameObject.SetActive(false);
             submit.gameObject.SetActive(false);
             for (int i = 0; i < 16; i++)
                 tilesymbols[i].gameObject.SetActive(false);
-            StartCoroutine(showStatusLight(tiles[solutionsquare].transform.localPosition));
-            StartCoroutine(openFlap());
+            StartCoroutine(ShowStatusLight(tiles[solutionSquare].transform.localPosition));
+            StartCoroutine(OpenFlap());
         }
     }
 
-    private float easeInOutQuad(float time, float start, float end, float duration)
+    private float EaseInOutQuad(float time, float start, float end, float duration)
     {
         time /= duration / 2;
         if (time < 1)
@@ -223,10 +222,8 @@ public class scavengerHunt : MonoBehaviour
         return -(end - start) / 2 * (time * (time - 2) - 1) + start;
     }
 
-    private IEnumerator showStatusLight(Vector3 tilePosition)
+    private IEnumerator ShowStatusLight(Vector3 tilePosition)
     {
-        var x = solutionsquare % 4;
-        var y = solutionsquare / 4;
         statusLight.localPosition = new Vector3(tilePosition.x, -0.045f, tilePosition.z);
         statusLight.gameObject.SetActive(true);
 
@@ -235,7 +232,7 @@ public class scavengerHunt : MonoBehaviour
 
         while (elapsed < duration)
         {
-            statusLight.localPosition = new Vector3(tilePosition.x, easeInOutQuad(elapsed, -.045f, 0, duration), tilePosition.z);
+            statusLight.localPosition = new Vector3(tilePosition.x, EaseInOutQuad(elapsed, -.045f, 0, duration), tilePosition.z);
             yield return null;
             elapsed += Time.deltaTime;
         }
@@ -245,19 +242,18 @@ public class scavengerHunt : MonoBehaviour
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
     }
 
-    private IEnumerator openFlap()
+    private IEnumerator OpenFlap()
     {
-        var x = solutionsquare % 4;
-        var y = solutionsquare / 4;
+        var x = solutionSquare % 4;
         animationPivot.localPosition = new Vector3(.035f * x - 0.06875f, 0, 0);
-        tiles[solutionsquare].transform.SetParent(animationPivot);
+        tiles[solutionSquare].transform.SetParent(animationPivot);
 
         var duration = .6f;
         var elapsed = 0f;
 
         while (elapsed < duration)
         {
-            animationPivot.localEulerAngles = new Vector3(0, 0, easeInOutQuad(elapsed, 0, 90, duration));
+            animationPivot.localEulerAngles = new Vector3(0, 0, EaseInOutQuad(elapsed, 0, 90, duration));
             yield return null;
             elapsed += Time.deltaTime;
         }
@@ -265,9 +261,9 @@ public class scavengerHunt : MonoBehaviour
     }
 
     // Twitch Plays
-#pragma warning disable 414
+    #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} move u/d/l/r [Moves the specified direction in the maze] | !{0} submit [Submits the current position] | !{0} reset [Resets the module back to stage 1] | Moves can be chained, for example '!{0} move uuddlrl'";
-#pragma warning restore 414
+    #pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string command)
     {
@@ -275,29 +271,23 @@ public class scavengerHunt : MonoBehaviour
         {
             yield return null;
             if (stage == 0)
-            {
                 yield return "sendtochaterror Module cannot be reset to stage 1 when it is already on stage 1!";
-            }
             else
             {
                 stage = 0;
-                var decoycolornumbers = Enumerable.Range(0, 3).ToList();
+                var decoyColorNumbers = Enumerable.Range(0, 3).ToList();
                 if (bomb.GetBatteryCount() % 2 == 0)
-                    colorindex = 0;
+                    colorIndex = 0;
                 else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x)))
-                    colorindex = 1;
+                    colorIndex = 1;
                 else
-                    colorindex = 2;
-                decoycolornumbers.Remove(colorindex);
+                    colorIndex = 2;
+                decoyColorNumbers.Remove(colorIndex);
                 for (int i = 0; i < 2; i++)
-                {
-                    tiles[reltiles[i]].material = colors[colorindex];
-                }
+                    tiles[relTiles[i]].material = colors[colorIndex];
                 for (int i = 0; i < 4; i++)
-                {
-                    tiles[decoytiles[i]].material = colors[(i == 0 || i == 1) ? decoycolornumbers[0] : decoycolornumbers[1]];
-                }
-                tileState();
+                    tiles[decoyTiles[i]].material = colors[(i == 0 || i == 1) ? decoyColorNumbers[0] : decoyColorNumbers[1]];
+                TileState();
                 Debug.LogFormat("[Scavenger Hunt #{0}] Module reset back to stage 1! (TP)", moduleId);
             }
             yield break;
@@ -315,9 +305,7 @@ public class scavengerHunt : MonoBehaviour
             {
                 string checks = "";
                 for (int j = 1; j < parameters.Length; j++)
-                {
                     checks += parameters[j];
-                }
                 var buttonsToPress = new List<KMSelectable>();
                 for (int i = 0; i < checks.Length; i++)
                 {
@@ -337,19 +325,77 @@ public class scavengerHunt : MonoBehaviour
                 }
                 yield return null;
                 var ix = 0;
-                var directions = new int[] { -4, 1, 4, -1 };
                 var markers = new char[] { 'u', 'r', 'd', 'l' };
                 for (int i = 0; i < buttonsToPress.Count; i++)
                 {
                     ix = Array.IndexOf(buttons, buttonsToPress[i]);
-                    if (!mazes[mazeindex][position].Contains(markers[ix]))
-                    {
+                    if (!mazes[mazeIndex][position].Contains(markers[ix]))
                         yield return "strike";
-                    }
                     buttonsToPress[i].OnInteract();
                     yield return new WaitForSeconds(0.15f);
                 }
             }
         }
     }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            var target = i == 0 ? keySquare : solutionSquare;
+            var q = new Queue<int>();
+            var allMoves = new List<Movement>();
+            q.Enqueue(position);
+            while (q.Count > 0)
+            {
+                var next = q.Dequeue();
+                if (next == target)
+                    goto readyToSubmit;
+                var cell = mazes[mazeIndex][next];
+                var allDirections = "urdl";
+                var offsets = new int[] { -4, 1, 4, -1 };
+                for (int j = 0; j < 4; j++)
+                {
+                    if (cell.Contains(allDirections[j]) && !allMoves.Any(x => x.start == next + offsets[j]))
+                    {
+                        q.Enqueue(next + offsets[j]);
+                        allMoves.Add(new Movement { start = next, end = next + offsets[j], direction = j });
+                    }
+                }
+            }
+            throw new InvalidOperationException("There is a bug in maze generation.");
+            readyToSubmit:
+            if (allMoves.Count != 0) // Checks for position already being target
+            {
+                var lastMove = allMoves.First(x => x.end == target);
+                var relevantMoves = new List<Movement> { lastMove };
+                while (lastMove.start != position)
+                {
+                    lastMove = allMoves.First(x => x.end == lastMove.start);
+                    relevantMoves.Add(lastMove);
+                }
+                for (int j = 0; j < relevantMoves.Count; j++)
+                {
+                    buttons[relevantMoves[relevantMoves.Count - 1 - j].direction].OnInteract();
+                    yield return new WaitForSeconds(.1f);
+                }
+            }
+            submit.OnInteract();
+            yield return new WaitForSeconds(.2f);
+        }
+        while (!moduleSolved)
+        {
+            yield return true;
+            yield return new WaitForSeconds(.1f);
+        }
+        yield return true;
+    }
+
+    class Movement
+    {
+        public int start;
+        public int end;
+        public int direction;
+    }
+
 }

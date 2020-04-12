@@ -20168,7 +20168,7 @@ MonoBehaviour:
   TwitchPlaysMode: 0
   turnSpeed: 128
   panSpeed: 4
-  zoomSpeed: 16
+  zoomSpeed: 30
 --- !u!114 &114849122621401846
 MonoBehaviour:
   m_ObjectHideFlags: 1
