@@ -202,7 +202,6 @@ public class scavengerHunt : MonoBehaviour
         else
         {
             Debug.LogFormat("[Scavenger Hunt #{0}] You submitted at {1}. That is correct. Module solved.", moduleId, posNames[position]);
-            moduleSolved = true;
             for (int i = 0; i < 4; i++)
                 buttons[i].gameObject.SetActive(false);
             submit.gameObject.SetActive(false);
@@ -225,7 +224,6 @@ public class scavengerHunt : MonoBehaviour
     private IEnumerator ShowStatusLight(Vector3 tilePosition)
     {
         statusLight.localPosition = new Vector3(tilePosition.x, -0.045f, tilePosition.z);
-        statusLight.gameObject.SetActive(true);
 
         var duration = 1.6f;
         var elapsed = 0f;
@@ -238,7 +236,9 @@ public class scavengerHunt : MonoBehaviour
         }
         statusLight.localPosition = new Vector3(tilePosition.x, 0, tilePosition.z);
 
+        statusLight.gameObject.SetActive(true);
         module.HandlePass();
+        moduleSolved = true;
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
     }
 
@@ -381,14 +381,14 @@ public class scavengerHunt : MonoBehaviour
                 }
             }
             submit.OnInteract();
-            yield return new WaitForSeconds(.2f);
+            if (i == 0)
+                yield return new WaitForSeconds(.2f);
         }
         while (!moduleSolved)
         {
             yield return true;
             yield return new WaitForSeconds(.1f);
         }
-        yield return true;
     }
 
     class Movement
