@@ -106,7 +106,7 @@ public class scavengerHunt : MonoBehaviour
         }
         Debug.LogFormat("[Scavenger Hunt #{0}] You are in maze {1}.", moduleId, mazeIndex);
         Debug.LogFormat("[Scavenger Hunt #{0}] You started in {1}.", moduleId, posNames[position]);
-        Debug.LogFormat("[Scanvenger Hunt #{0}] The relevant color is {1}.", moduleId, colorNames[colorIndex]);
+        Debug.LogFormat("[Scavenger Hunt #{0}] The relevant color is {1}.", moduleId, colorNames[colorIndex]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The relevant colored squares are at {1} and {2}.", moduleId, posNames[relTiles[0]], posNames[relTiles[1]]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The decoy colored squares are at {1}, {2}, {3}, and {4}.", moduleId, posNames[decoyTiles[0]], posNames[decoyTiles[1]], posNames[decoyTiles[2]], posNames[decoyTiles[3]]);
         Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 1 is at {1}.", moduleId, posNames[keySquare]);
