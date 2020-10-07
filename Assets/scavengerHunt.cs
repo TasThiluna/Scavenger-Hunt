@@ -224,6 +224,7 @@ public class scavengerHunt : MonoBehaviour
     private IEnumerator ShowStatusLight(Vector3 tilePosition)
     {
         statusLight.localPosition = new Vector3(tilePosition.x, -0.045f, tilePosition.z);
+        statusLight.gameObject.SetActive(true);
 
         var duration = 1.6f;
         var elapsed = 0f;
@@ -236,7 +237,6 @@ public class scavengerHunt : MonoBehaviour
         }
         statusLight.localPosition = new Vector3(tilePosition.x, 0, tilePosition.z);
 
-        statusLight.gameObject.SetActive(true);
         module.HandlePass();
         moduleSolved = true;
         audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
