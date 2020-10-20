@@ -27,14 +27,14 @@ public class scavengerHunt : MonoBehaviour
     public Texture noclue;
     public Texture[] columnsymbols;
     public Texture[] rowsymbols;
-    public Texture tophalf;
-    public Texture bottomhalf;
-    public Texture lefthalf;
-    public Texture righthalf;
-    public Texture evencol;
-    public Texture oddcol;
-    public Texture evenrow;
-    public Texture oddrow;
+    public Texture[] tophalf;
+    public Texture[] bottomhalf;
+    public Texture[] lefthalf;
+    public Texture[] righthalf;
+    public Texture[] evencol;
+    public Texture[] oddcol;
+    public Texture[] evenrow;
+    public Texture[] oddrow;
     public Transform animationPivot;
     public Transform statusLight;
 
@@ -56,10 +56,10 @@ public class scavengerHunt : MonoBehaviour
     private int stage;
     private int keySquare;
     private int solutionSquare;
-    private int[] symic = new int[16];
     private int[] relTiles = new int[2];
     private int[] decoyTiles = new int[4];
     private int[] decoyLocations = new int[2];
+    private int[] symbolIndices = new int[16];
 
     void Awake()
     {
@@ -91,7 +91,7 @@ public class scavengerHunt : MonoBehaviour
             numbers.Remove(decoyLocations[i]);
         }
         for (int i = 0; i < 16; i++)
-            symic[i] = rnd.Range(0, 2);
+            symbolIndices[i] = rnd.Range(0, 4);
         for (int i = 0; i < 2; i++)
         {
             relTiles[i] = numbers[rnd.Range(0, numbers.Count())];
@@ -116,7 +116,10 @@ public class scavengerHunt : MonoBehaviour
     void StageTwo()
     {
         for (int i = 0; i < 16; i++)
+        {
             tiles[i].material = neutral;
+            symbolIndices[i] = rnd.Range(0, 4);
+        }
         Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 2 is at {1}.", moduleId, posNames[solutionSquare]);
         TileState();
     }
@@ -132,26 +135,26 @@ public class scavengerHunt : MonoBehaviour
             if (!relTiles.Contains(position) && !decoyTiles.Contains(position))
                 tilesymbols[position].material.mainTexture = noclue;
             else if (position == relTiles[0])
-                tilesymbols[position].material.mainTexture = columnsymbols[keySquare % 4];
+                tilesymbols[position].material.mainTexture = columnsymbols[(keySquare % 4) * 4 + symbolIndices[position]];
             else if (position == relTiles[1])
-                tilesymbols[position].material.mainTexture = rowsymbols[keySquare / 4];
+                tilesymbols[position].material.mainTexture = rowsymbols[(keySquare / 4) * 4 + symbolIndices[position]];
             else if (position == decoyTiles[0] || position == decoyTiles[2])
-                tilesymbols[position].material.mainTexture = columnsymbols[position == decoyTiles[0] ? decoyTiles[0] % 4 : decoyTiles[2] % 4];
+                tilesymbols[position].material.mainTexture = columnsymbols[(position == decoyTiles[0] ? decoyTiles[0] % 4 : decoyTiles[2] % 4) * 4 + symbolIndices[position]];
             else
-                tilesymbols[position].material.mainTexture = rowsymbols[position == decoyTiles[1] ? decoyTiles[1] / 4 : decoyTiles[3] / 4];
+                tilesymbols[position].material.mainTexture = rowsymbols[(position == decoyTiles[1] ? decoyTiles[1] / 4 : decoyTiles[3] / 4) * 4 + symbolIndices[position]];
         }
         else
         {
             if (!decoyTiles.Contains(position))
                 tilesymbols[position].material.mainTexture = noclue;
             else if (position == decoyTiles[0])
-                tilesymbols[position].material.mainTexture = ((solutionSquare / 4 == 0 || solutionSquare / 4 == 1) ? tophalf : bottomhalf);
+                tilesymbols[position].material.mainTexture = ((solutionSquare / 4 == 0 || solutionSquare / 4 == 1) ? tophalf[symbolIndices[position]] : bottomhalf[symbolIndices[position]]);
             else if (position == decoyTiles[1])
-                tilesymbols[position].material.mainTexture = ((solutionSquare % 4 == 0 || solutionSquare % 4 == 1) ? lefthalf : righthalf);
+                tilesymbols[position].material.mainTexture = ((solutionSquare % 4 == 0 || solutionSquare % 4 == 1) ? lefthalf[symbolIndices[position]] : righthalf[symbolIndices[position]]);
             else if (position == decoyTiles[2])
-                tilesymbols[position].material.mainTexture = ((solutionSquare / 4 == 0 || solutionSquare / 4 == 2) ? oddrow : evenrow);
+                tilesymbols[position].material.mainTexture = ((solutionSquare / 4 == 0 || solutionSquare / 4 == 2) ? oddrow[symbolIndices[position]] : evenrow[symbolIndices[position]]);
             else
-                tilesymbols[position].material.mainTexture = ((solutionSquare % 4 == 0 || solutionSquare % 4 == 2) ? oddcol : evencol);
+                tilesymbols[position].material.mainTexture = ((solutionSquare % 4 == 0 || solutionSquare % 4 == 2) ? oddcol[symbolIndices[position]] : evencol[symbolIndices[position]]);
         }
     }
 
