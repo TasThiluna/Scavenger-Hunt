@@ -29,14 +29,15 @@ public class scavengerHunt : MonoBehaviour
     public Texture[] rowsymbols;
     public Texture[] tophalf;
     public Texture[] bottomhalf;
-    public Texture[] lefthalf;
     public Texture[] righthalf;
+    public Texture[] lefthalf;
     public Texture[] evencol;
     public Texture[] oddcol;
     public Texture[] evenrow;
     public Texture[] oddrow;
     public Transform animationPivot;
     public Transform statusLight;
+    public TextMesh[] colorblindTexts;
 
     private static readonly string[] posNames = new string[16] { "A1", "B1", "C1", "D1", "A2", "B2", "C2", "D2", "A3", "B3", "C3", "D3", "A4", "B4", "C4", "D4" };
     private static readonly string[] colorNames = new string[3] { "red", "green", "blue" };
@@ -59,6 +60,7 @@ public class scavengerHunt : MonoBehaviour
     private int[] relTiles = new int[2];
     private int[] decoyTiles = new int[4];
     private int[] decoyLocations = new int[2];
+    private List<int> decoyColorNumbers = new List<int>();
     private int[] symbolIndices = new int[16];
 
     void Awake()
@@ -67,13 +69,16 @@ public class scavengerHunt : MonoBehaviour
         foreach (KMSelectable button in buttons)
             button.OnInteract += delegate () { ButtonPress(button); return false; };
         submit.OnInteract += delegate () { PressSubmit(); return false; };
+        var active = GetComponent<KMColorblindMode>().ColorblindModeActive;
+        foreach (GameObject text in colorblindTexts.Select(x => x.gameObject))
+            text.SetActive(active);
     }
 
     void Start()
     {
         statusLight.gameObject.SetActive(false);
         var numbers = Enumerable.Range(0, 16).ToList();
-        var decoyColorNumbers = Enumerable.Range(0, 3).ToList();
+        decoyColorNumbers = Enumerable.Range(0, 3).ToList();
         if (bomb.GetBatteryCount() % 2 == 0)
             colorIndex = 0;
         else if (bomb.GetSerialNumberLetters().Any(x => "AEIOU".Contains(x)))
@@ -120,6 +125,8 @@ public class scavengerHunt : MonoBehaviour
             tiles[i].material = neutral;
             symbolIndices[i] = rnd.Range(0, 4);
         }
+        foreach (GameObject text in colorblindTexts.Select(x => x.gameObject))
+            text.SetActive(false);
         Debug.LogFormat("[Scavenger Hunt #{0}] The solution square for stage 2 is at {1}.", moduleId, posNames[solutionSquare]);
         TileState();
     }
@@ -128,8 +135,18 @@ public class scavengerHunt : MonoBehaviour
     {
         var allPositions = Enumerable.Range(0, 16).ToList();
         var unused = allPositions.Where(x => x != position).ToArray();
+        colorblindTexts[position].text = "";
         for (int i = 0; i < unused.Count(); i++)
-            tilesymbols[unused[i]].material.mainTexture = none;
+        {
+            var ix = unused[i];
+            if (relTiles.Contains(ix))
+                colorblindTexts[ix].text = "RGB"[colorIndex].ToString();
+            else if (decoyTiles.Contains(ix))
+                colorblindTexts[ix].text = "RGB"[decoyColorNumbers[Array.IndexOf(decoyTiles, ix) == 0 || Array.IndexOf(decoyTiles, ix) == 1 ? 0 : 1]].ToString();
+            else
+                colorblindTexts[ix].text = "";
+            tilesymbols[ix].material.mainTexture = none;
+        }
         if (stage == 0)
         {
             if (!relTiles.Contains(position) && !decoyTiles.Contains(position))
@@ -264,9 +281,9 @@ public class scavengerHunt : MonoBehaviour
     }
 
     // Twitch Plays
-    #pragma warning disable 414
+#pragma warning disable 414
     private readonly string TwitchHelpMessage = @"!{0} move u/d/l/r [Moves the specified direction in the maze] | !{0} submit [Submits the current position] | !{0} reset [Resets the module back to stage 1] | Moves can be chained, for example '!{0} move uuddlrl'";
-    #pragma warning restore 414
+#pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string command)
     {
@@ -367,7 +384,7 @@ public class scavengerHunt : MonoBehaviour
                 }
             }
             throw new InvalidOperationException("There is a bug in maze generation.");
-            readyToSubmit:
+        readyToSubmit:
             if (allMoves.Count != 0) // Checks for position already being target
             {
                 var lastMove = allMoves.First(x => x.end == target);
