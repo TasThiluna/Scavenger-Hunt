@@ -12,9 +12,8 @@ public class scavengerHunt : MonoBehaviour
     public new KMAudio audio;
     public KMBombInfo bomb;
     public KMBombModule module;
-
-    static int moduleIdCounter = 1;
-    int moduleId;
+    private static int moduleIdCounter = 1;
+    private int moduleId;
     private bool moduleSolved;
 
     public KMSelectable[] buttons;
@@ -63,7 +62,7 @@ public class scavengerHunt : MonoBehaviour
     private List<int> decoyColorNumbers = new List<int>();
     private int[] symbolIndices = new int[16];
 
-    void Awake()
+    private void Awake()
     {
         moduleId = moduleIdCounter++;
         foreach (KMSelectable button in buttons)
@@ -74,7 +73,7 @@ public class scavengerHunt : MonoBehaviour
             text.SetActive(active);
     }
 
-    void Start()
+    private void Start()
     {
         statusLight.gameObject.SetActive(false);
         var numbers = Enumerable.Range(0, 16).ToList();
@@ -118,7 +117,7 @@ public class scavengerHunt : MonoBehaviour
         TileState();
     }
 
-    void StageTwo()
+    private void StageTwo()
     {
         for (int i = 0; i < 16; i++)
         {
@@ -175,7 +174,7 @@ public class scavengerHunt : MonoBehaviour
         }
     }
 
-    void ButtonPress(KMSelectable button)
+    private void ButtonPress(KMSelectable button)
     {
         var ix = Array.IndexOf(buttons, button);
         button.AddInteractionPunch(.5f);
@@ -194,7 +193,7 @@ public class scavengerHunt : MonoBehaviour
         }
     }
 
-    void PressSubmit()
+    private void PressSubmit()
     {
         if (moduleSolved)
             return;
@@ -243,19 +242,20 @@ public class scavengerHunt : MonoBehaviour
 
     private IEnumerator ShowStatusLight(Vector3 tilePosition)
     {
-        statusLight.localPosition = new Vector3(tilePosition.x, -0.045f, tilePosition.z);
+        statusLight.localPosition = new Vector3(tilePosition.x, 0f, tilePosition.z);
         statusLight.gameObject.SetActive(true);
 
         var duration = 1.6f;
         var elapsed = 0f;
+        var end = .045f;
 
         while (elapsed < duration)
         {
-            statusLight.localPosition = new Vector3(tilePosition.x, EaseInOutQuad(elapsed, -.045f, 0, duration), tilePosition.z);
+            statusLight.localPosition = new Vector3(tilePosition.x, EaseInOutQuad(elapsed, 0f, end, duration), tilePosition.z);
             yield return null;
             elapsed += Time.deltaTime;
         }
-        statusLight.localPosition = new Vector3(tilePosition.x, 0, tilePosition.z);
+        statusLight.localPosition = new Vector3(tilePosition.x, end, tilePosition.z);
 
         module.HandlePass();
         moduleSolved = true;
@@ -285,7 +285,7 @@ public class scavengerHunt : MonoBehaviour
     private readonly string TwitchHelpMessage = @"!{0} move u/d/l/r [Moves the specified direction in the maze] | !{0} submit [Submits the current position] | !{0} reset [Resets the module back to stage 1] | Moves can be chained, for example '!{0} move uuddlrl'";
 #pragma warning restore 414
 
-    IEnumerator ProcessTwitchCommand(string command)
+    private IEnumerator ProcessTwitchCommand(string command)
     {
         if (Regex.IsMatch(command, @"^\s*reset\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
@@ -358,13 +358,13 @@ public class scavengerHunt : MonoBehaviour
         }
     }
 
-    IEnumerator TwitchHandleForcedSolve()
+    private IEnumerator TwitchHandleForcedSolve()
     {
         for (int i = 0; i < 2; i++)
         {
             var target = i == 0 ? keySquare : solutionSquare;
             var q = new Queue<int>();
-            var allMoves = new List<Movement>();
+            var allMoves = new List<movement>();
             q.Enqueue(position);
             while (q.Count > 0)
             {
@@ -379,7 +379,7 @@ public class scavengerHunt : MonoBehaviour
                     if (cell.Contains(allDirections[j]) && !allMoves.Any(x => x.start == next + offsets[j]))
                     {
                         q.Enqueue(next + offsets[j]);
-                        allMoves.Add(new Movement { start = next, end = next + offsets[j], direction = j });
+                        allMoves.Add(new movement { start = next, end = next + offsets[j], direction = j });
                     }
                 }
             }
@@ -388,7 +388,7 @@ public class scavengerHunt : MonoBehaviour
             if (allMoves.Count != 0) // Checks for position already being target
             {
                 var lastMove = allMoves.First(x => x.end == target);
-                var relevantMoves = new List<Movement> { lastMove };
+                var relevantMoves = new List<movement> { lastMove };
                 while (lastMove.start != position)
                 {
                     lastMove = allMoves.First(x => x.end == lastMove.start);
@@ -411,7 +411,7 @@ public class scavengerHunt : MonoBehaviour
         }
     }
 
-    class Movement
+    class movement
     {
         public int start;
         public int end;
