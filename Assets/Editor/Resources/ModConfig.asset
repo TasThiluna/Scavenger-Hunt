@@ -13,11 +13,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: scavengerHunt
   title: Scavenger Hunt
-  author: TasThing
+  author: TasThiluna
   description: "Burying your problems won't solve them.\r\n\r\nModule idea and implementation
-    by TasThing.\r\nThanks to Timwi for the solve animation.\r\nSymbols are from Cryptic
-    Cycle, by SpeakingEvil.\r\n\r\nManual HTML: https://ktane.timwi.de/HTML/Scavenger%20Hunt.html\r\nManual
+    by TasThiluna.\r\nThanks to Timwi for the solve animation.\r\nSymbols are from
+    Cryptic Cycle, by SpeakingEvil.\r\n\r\nManual HTML: https://ktane.timwi.de/HTML/Scavenger%20Hunt.html\r\nManual
     PDF: https://ktane.timwi.de/PDF/Scavenger%20Hunt.pdf"
-  version: 2.1.2
+  version: 2.1.3
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 251aaf11fe5f40b46a01d5503be502a7, type: 3}

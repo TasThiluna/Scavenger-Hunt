@@ -1234,7 +1234,6 @@ GameObject:
   - component: {fileID: 114221075226099596}
   - component: {fileID: 114712797181976816}
   - component: {fileID: 114922639299798348}
-  - component: {fileID: 114228189400063448}
   m_Layer: 0
   m_Name: scavengerHunt
   m_TagString: Untagged
@@ -5235,18 +5234,6 @@ MonoBehaviour:
   ModuleType: scavengerHunt
   ModuleDisplayName: Scavenger Hunt
   RequiresTimerVisibility: 0
---- !u!114 &114228189400063448
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1954350148131442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cadefbb4e8c0c743893b8a7efee5ac5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _colorblindMode: 1
 --- !u!114 &114247703044719082
 MonoBehaviour:
   m_ObjectHideFlags: 1
