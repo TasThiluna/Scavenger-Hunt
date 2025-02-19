@@ -130,7 +130,7 @@ public class scavengerHunt : MonoBehaviour
         TileState();
     }
 
-    void TileState()
+    private void TileState()
     {
         var allPositions = Enumerable.Range(0, 16).ToList();
         var unused = allPositions.Where(x => x != position).ToArray();
